@@ -21,11 +21,28 @@ app.post("/presence", async (req, res) => {
             });
         }
 
+        // AMBIL DATA ASLI DARI ROBLOX (Menggunakan Fetch API bawaan Node.js)
+        const robloxResponse = await fetch("https://roblox.com", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ userIds: userIds })
+        });
+
+        if (!robloxResponse.ok) {
+            const errorText = await robloxResponse.text();
+            return res.status(robloxResponse.status).json({
+                error: `Roblox API Error: ${errorText}`
+            });
+        }
+
+        const data = await robloxResponse.json();
+
+        // Mengembalikan data pelacakan asli dari Roblox ke pengguna API Anda
         return res.status(200).json({
-            userPresences: userIds.map(id => ({
-                userId: id,
-                userPresenceType: 0
-            }))
+            userPresences: data.userPresences
         });
 
     } catch (err) {
